@@ -1,0 +1,185 @@
+/* ==========================================================================
+   Imports
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;700&display=swap');
+
+/* ==========================================================================
+   CSS Variables
+   ========================================================================== */
+:root {
+    /* Colors: Text & Background */
+    --color-text-primary: #f3f4f6;
+    --color-bg-primary: #111827;
+    
+    /* Colors: Input */
+    --color-input-bg: rgba(31, 41, 55, 0.8);
+    --color-input-bg-focus: rgba(31, 41, 55, 0.95);
+    --color-input-border: rgba(55, 65, 81, 0.5);
+    --color-input-placeholder: #9ca3af;
+    
+    /* Colors: Button */
+    --color-button-bg: #2563eb;
+    --color-button-bg-hover: #3b82f6;
+    --color-button-shadow: rgba(59, 130, 246, 0.2);
+    --color-button-shadow-hover: rgba(59, 130, 246, 0.3);
+    
+    /* Colors: Points & Tooltips */
+    --color-point: rgba(254, 255, 219, 0.97);
+    --color-point-active: rgba(240, 243, 43, 1);
+    --color-point-glow-hover: rgba(255, 255, 0, 0.5);
+    --color-point-glow-active: rgba(255, 255, 0, 1);
+    --color-tooltip-bg: rgba(31, 41, 55, 0.8);
+    --color-tooltip-shadow: rgba(0, 0, 0, 0.1);
+
+    /* Animation */
+    --transition-duration: 0.2s;
+    --transition-timing: ease;
+}
+
+/* ==========================================================================
+   Base Styles
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Lora', serif;
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* ==========================================================================
+   Input Container
+   ========================================================================== */
+.input-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1.5rem;
+    background-color: rgba(31, 41, 55, 0.4);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid var(--color-input-border);
+}
+
+.input-wrapper {
+    max-width: 48rem;
+    margin: 0 auto;
+    display: flex;
+    gap: 0.75rem;
+}
+
+/* ==========================================================================
+   Input Field
+   ========================================================================== */
+input {
+    width: 100%;
+    background-color: var(--color-input-bg);
+    color: var(--color-text-primary);
+    padding: 0.875rem 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--color-input-border);
+    font-size: 15px;
+    font-family: inherit;
+    transition: all var(--transition-duration) var(--transition-timing);
+}
+
+input::placeholder {
+    color: var(--color-input-placeholder);
+}
+
+input:focus {
+    outline: none;
+    background-color: var(--color-input-bg-focus);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+
+/* ==========================================================================
+   Button
+   ========================================================================== */
+button {
+    background-color: var(--color-button-bg);
+    color: var(--color-text-primary);
+    padding: 0.875rem 1.75rem;
+    border-radius: 0.75rem;
+    border: none;
+    font-size: 15px;
+    font-weight: 500;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 10px 15px -3px var(--color-button-shadow);
+    transition: all var(--transition-duration) var(--transition-timing);
+}
+
+button:hover {
+    background-color: var(--color-button-bg-hover);
+    transform: scale(1.02);
+    box-shadow: 0 10px 15px -3px var(--color-button-shadow-hover);
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+/* ==========================================================================
+   Plot Points & Tooltips
+   ========================================================================== */
+.plot-point {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    z-index: 1;
+    box-shadow: 0 0 5px var(--color-point-glow-hover);
+    transition: all var(--transition-duration) var(--transition-timing);
+}
+
+.plot-point:hover {
+    transform: translate(-50%, -50%) scale(3);
+    box-shadow: 0 0 15px var(--color-point-glow-hover);
+}
+
+.plot-point.point-active {
+    transform: translate(-50%, -50%) scale(3);
+}
+
+.point-tooltip {
+    position: absolute;
+    display: none;
+    background-color: var(--color-tooltip-bg);
+    color: var(--color-text-primary);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    bottom: calc(100% + 15px);
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 2;
+    box-shadow: 0 4px 6px -1px var(--color-tooltip-shadow);
+    white-space: normal;
+    width: max-content;
+    max-width: 300px;
+    min-width: 150px;
+    word-wrap: break-word;
+}
+
+.plot-point:hover + .point-tooltip,
+.point-tooltip.tooltip-active {
+    display: block;
+}
