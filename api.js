@@ -19,7 +19,7 @@ class ApiService {
 
     async getQuoteCoordinates(quote) {
         try {
-            const response = await fetch(`${API_CONFIG.BASE_URL}/pca-coordinates/`, {
+            const response = await fetch(`${API_CONFIG.BASE_URL}/get-coords/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -31,7 +31,7 @@ class ApiService {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
-            return data.pca_coordinates[0];
+            return data.coords[0];
         } catch (error) {
             console.error('Error getting quote coordinates:', error);
             throw error;

@@ -6,18 +6,24 @@ class Canvas {
         this.initializeStyles();
         this.setupEventListeners();
         this.resize();
+        
+        // Properties for dragging
+        this.isDragging = false;
+        this.startX = 0;
+        this.startY = 0;
+        this.offsetX = 0;
+        this.offsetY = 0;
+        this.scale = CANVAS_CONFIG.SCALE;
+        this.minScale = 10;  // Minimum zoom level
+        this.maxScale = 500; // Maximum zoom level
+        
+        // For pinch zoom
+        this.touchDistance = 0;
     }
 
     initializeContainer() {
         this.container = document.createElement('div');
-        Object.assign(this.container.style, {
-            position: 'fixed',
-            top: '0',
-            left: '0',
-            width: '100%',
-            height: '100%',
-            pointerEvents: 'none'
-        });
+        this.container.className = 'canvas-container';
         document.body.insertBefore(this.container, document.body.firstChild);
     }
 
@@ -29,11 +35,63 @@ class Canvas {
             activePointColor: rootStyles.getPropertyValue('--color-point-active').trim()
         };
         this.scale = CANVAS_CONFIG.SCALE;
-        this.pointRadius = CANVAS_CONFIG.POINT_RADIUS;
     }
 
     setupEventListeners() {
         window.addEventListener('resize', () => this.resize());
+        
+        // Event listeners for dragging
+        this.container.addEventListener('mousedown', (e) => this.startDrag(e));
+        this.container.addEventListener('mousemove', (e) => this.drag(e));
+        this.container.addEventListener('mouseup', () => this.endDrag());
+        this.container.addEventListener('mouseleave', () => this.endDrag());
+        
+        // Mouse wheel zoom
+        this.container.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            this.handleZoom(e);
+        }, { passive: false });
+        
+        // Touch events for pinch zoom
+        this.container.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+                this.touchDistance = this.getTouchDistance(e.touches);
+            }
+        });
+        
+        this.container.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2) {
+                this.handlePinchZoom(e);
+            }
+        });
+    }
+
+    startDrag(e) {
+        this.isDragging = true;
+        this.startX = e.clientX;
+        this.startY = e.clientY;
+    }
+
+    drag(e) {
+        if (this.isDragging) {
+            this.container.classList.add('dragging');
+            const dx = e.clientX - this.startX;
+            const dy = e.clientY - this.startY;
+            
+            this.offsetX += dx;
+            this.offsetY += dy;
+            
+            this.startX = e.clientX;
+            this.startY = e.clientY;
+
+            // Update all point positions instead of triggering redraw
+            this.updateAllPointPositions();
+        }
+    }
+
+    endDrag() {
+        this.isDragging = false;
+        this.container.classList.remove('dragging');
     }
 
     resize() {
@@ -46,8 +104,8 @@ class Canvas {
 
     worldToPixel(x, y) {
         return {
-            x: this.centerX + x * this.scale,
-            y: this.centerY - y * this.scale
+            x: this.centerX + x * this.scale + this.offsetX,
+            y: this.centerY - y * this.scale + this.offsetY
         };
     }
 
@@ -60,11 +118,9 @@ class Canvas {
     createPointElement(color) {
         const point = document.createElement('div');
         point.className = 'plot-point';
-        Object.assign(point.style, {
-            position: 'absolute',
-            backgroundColor: color || this.styles.defaultPointColor,
-            pointerEvents: 'auto'
-        });
+        if (color) {
+            point.style.backgroundColor = color;
+        }
         return point;
     }
 
@@ -78,42 +134,102 @@ class Canvas {
     plotPoint(x, y, color, quote) {
         const pixel = this.worldToPixel(x, y);
         const wrapper = document.createElement('div');
-        Object.assign(wrapper.style, {
-            position: 'absolute',
-            left: `${pixel.x}px`,
-            top: `${pixel.y}px`,
-            pointerEvents: 'none'
-        });
+        wrapper.className = 'point-wrapper';
+        wrapper.style.left = `${pixel.x}px`;
+        wrapper.style.top = `${pixel.y}px`;
+        
+        // Store world coordinates as data attributes
+        wrapper.dataset.worldX = x;
+        wrapper.dataset.worldY = y;
 
         const point = this.createPointElement(color);
         const tooltip = this.createTooltipElement(quote);
-
+        
         wrapper.appendChild(point);
         wrapper.appendChild(tooltip);
-
-        point.addEventListener('click', () => {
-            this.handlePointClick(point, tooltip);
-        });
-
         this.container.appendChild(wrapper);
+
+        wrapper.addEventListener('click', () => this.handlePointClick(point, tooltip));
     }
 
     handlePointClick(point, tooltip) {
-        const tooltipActiveClass = 'tooltip-active';
-        const pointActiveClass = 'point-active';
-
-        point.classList.add(pointActiveClass);
-        tooltip.classList.add(tooltipActiveClass);
-
-        if (this.activeTimeout) {
-            clearTimeout(this.activeTimeout);
+        if(point.classList.contains('point-active')) {
+            point.classList.remove('point-active');
+            tooltip.classList.remove('tooltip-active');
+            return;
         }
+        else{
+            point.classList.add('point-active');
+            tooltip.classList.add('tooltip-active');
+        }
+    }
 
-        this.activeTimeout = setTimeout(() => {
-            point.classList.remove(pointActiveClass);
-            tooltip.classList.remove(tooltipActiveClass);
-            this.activeTimeout = null;
-        }, 5000);
+    // Update all point positions based on current scale and offset
+    updateAllPointPositions() {
+        const points = this.container.querySelectorAll('.point-wrapper');
+        points.forEach(wrapper => {
+            // Get the original world coordinates from data attributes
+            const worldX = parseFloat(wrapper.dataset.worldX);
+            const worldY = parseFloat(wrapper.dataset.worldY);
+            
+            // Convert to new pixel coordinates
+            const pixel = this.worldToPixel(worldX, worldY);
+            wrapper.style.left = `${pixel.x}px`;
+            wrapper.style.top = `${pixel.y}px`;
+        });
+    }
+
+    handleZoom(e) {
+        const zoomFactor = 1.05;
+        let direction = e.deltaY < 0 ? zoomFactor : 1 / zoomFactor;
+        
+        // Get mouse position relative to canvas
+        const rect = this.container.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        
+        this.zoomTowardPoint(mouseX, mouseY, direction);
+    }
+
+    handlePinchZoom(e) {
+        const newDistance = this.getTouchDistance(e.touches);
+        const zoomFactor = newDistance / this.touchDistance;
+        
+        // Get center point of the two touches
+        const rect = this.container.getBoundingClientRect();
+        const centerX = ((e.touches[0].clientX + e.touches[1].clientX) / 2) - rect.left;
+        const centerY = ((e.touches[0].clientY + e.touches[1].clientY) / 2) - rect.top;
+        
+        this.zoomTowardPoint(centerX, centerY, zoomFactor);
+        this.touchDistance = newDistance;
+    }
+
+    getTouchDistance(touches) {
+        const dx = touches[0].clientX - touches[1].clientX;
+        const dy = touches[0].clientY - touches[1].clientY;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    zoomTowardPoint(targetX, targetY, zoomFactor) {
+        const oldScale = this.scale;
+        const newScale = Math.min(Math.max(this.scale * zoomFactor, this.minScale), this.maxScale);
+        const actualZoomFactor = newScale / oldScale;
+
+        if (newScale === this.scale) return;
+
+        // Calculate the new offset to keep the target point stationary
+        // Formula:
+        // newOffset = scaleRatio * oldOffset + (1 - scaleRatio) * (target - center)
+        const newOffsetX = actualZoomFactor * this.offsetX + (1 - actualZoomFactor) * (targetX - this.centerX);
+        const newOffsetY = actualZoomFactor * this.offsetY + (1 - actualZoomFactor) * (targetY - this.centerY);
+        
+        // Update the scale and offsets
+        this.scale = newScale;
+        this.offsetX = newOffsetX;
+        this.offsetY = newOffsetY;
+
+        // Update all point positions
+        this.updateAllPointPositions();
     }
 }
 

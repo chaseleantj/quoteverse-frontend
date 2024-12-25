@@ -24,11 +24,12 @@
     --color-button-shadow-hover: rgba(59, 130, 246, 0.3);
     
     /* Colors: Points & Tooltips */
-    --color-point: rgba(254, 255, 219, 0.97);
-    --color-point-active: rgba(240, 243, 43, 1);
-    --color-point-glow-hover: rgba(255, 255, 0, 0.5);
-    --color-point-glow-active: rgba(255, 255, 0, 1);
-    --color-tooltip-bg: rgba(31, 41, 55, 0.8);
+    --color-point: rgba(254, 255, 219, 0.8);
+    --color-point-hover: rgba(254, 255, 219, 0.9);
+    --color-point-active: rgba(240, 243, 200, 1);
+    --color-point-glow-hover: rgba(255, 249, 87, 1);
+    --color-point-glow-active: rgb(255, 255, 152);
+    --color-tooltip-bg: rgba(31, 41, 55, 1);
     --color-tooltip-shadow: rgba(0, 0, 0, 0.1);
 
     /* Animation */
@@ -75,6 +76,7 @@ main {
     border-right: 1px solid var(--color-input-border);
     display: flex;
     flex-direction: column;
+    z-index: 10;
 }
 
 .input-wrapper {
@@ -110,29 +112,62 @@ input:focus {
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
 }
 
+/* ==========================================================================
+   Canvas Container
+   ========================================================================== */
+
+.canvas-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    perspective: 1000px;
+    transform-style: preserve-3d;
+}
+
+.canvas-container.dragging {
+    cursor: grabbing;
+}
+
 
 /* ==========================================================================
    Plot Points & Tooltips
    ========================================================================== */
+   
+/* Point Wrapper */
+.point-wrapper {
+    position: absolute;
+    transform-style: preserve-3d;
+    transform: translate(-50%, -50%);
+    pointer-events: auto;
+}
+
 .plot-point {
     position: absolute;
-    width: 6px;
-    height: 6px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    transform: translate(-50%, -50%);
     cursor: pointer;
-    z-index: 1;
+    background-color: var(--color-point);
     box-shadow: 0 0 5px var(--color-point-glow-hover);
     transition: all var(--transition-duration) var(--transition-timing);
+    pointer-events: auto;
+    transform-style: preserve-3d;
+    transform: translateZ(0);
 }
 
 .plot-point:hover {
-    transform: translate(-50%, -50%) scale(3);
+    transform: translateZ(0) scale(2);
+    background-color: var(--color-point-hover);
     box-shadow: 0 0 15px var(--color-point-glow-hover);
+    cursor: pointer;
 }
 
 .plot-point.point-active {
-    transform: translate(-50%, -50%) scale(3);
+    transform: translateZ(0) scale(2);
+    background-color: var(--color-point-active);
 }
 
 .point-tooltip {
@@ -143,20 +178,19 @@ input:focus {
     padding: 8px 12px;
     border-radius: 6px;
     font-size: 14px;
-    bottom: calc(100% + 15px);
-    left: 50%;
-    transform: translateX(-50%);
     pointer-events: none;
-    z-index: 2;
     box-shadow: 0 4px 6px -1px var(--color-tooltip-shadow);
     white-space: normal;
     width: max-content;
     max-width: 300px;
     min-width: 150px;
     word-wrap: break-word;
+    transform-style: preserve-3d;
+    transform: translate(-50%, -100%) translateZ(20px);
 }
 
 .plot-point:hover + .point-tooltip,
 .point-tooltip.tooltip-active {
     display: block;
+    transform: translate(-50%, -100%) translateZ(30px);
 }

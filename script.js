@@ -46,10 +46,10 @@ class QuoteVisualizer {
 
     plotQuote(quote, color) {
         canvas.plotPoint(
-            quote.pca_coords[0],
-            quote.pca_coords[1],
+            quote.coords[0],
+            quote.coords[1],
             color,
-            quote.quote || 'Loading...'
+            quote.text || 'Loading...'
         );
     }
 
@@ -74,7 +74,7 @@ class QuoteVisualizer {
             }
 
             this.refreshCanvas();
-            this.plotQuote({ quote: inputValue, pca_coords: coordinates }, COLORS.HIGHLIGHT);
+            this.plotQuote({ text: inputValue, coords: coordinates }, COLORS.HIGHLIGHT);
         } catch (error) {
             console.error('Error submitting quote:', error);
         }

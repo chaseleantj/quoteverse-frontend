@@ -9,6 +9,5 @@ export const COLORS = {
 };
 
 export const CANVAS_CONFIG = {
-    SCALE: 1000,
-    POINT_RADIUS: 6
+    SCALE: 150,
 }; 
