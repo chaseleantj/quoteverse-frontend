@@ -37,9 +37,10 @@ class Canvas {
     }
 
     resize() {
-        this.width = window.innerWidth;
+        const sidebarWidth = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sidebar-width'));
+        this.width = window.innerWidth - sidebarWidth;
         this.height = window.innerHeight;
-        this.centerX = this.width / 2;
+        this.centerX = sidebarWidth + (this.width / 2);
         this.centerY = this.height / 2;
     }
 

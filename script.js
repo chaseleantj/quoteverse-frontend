@@ -12,7 +12,6 @@ class QuoteVisualizer {
 
     setupDOMElements() {
         this.input = document.querySelector('input');
-        this.button = document.querySelector('button');
     }
 
     setupEventListeners() {
@@ -22,10 +21,6 @@ class QuoteVisualizer {
             setTimeout(async () => {
                 await this.handleUserInput();
             }, 10);
-        });
-
-        this.button.addEventListener('click', async () => {
-            await this.handleUserInput();
         });
     }
 
@@ -69,11 +64,6 @@ class QuoteVisualizer {
         return false;
     }
 
-    animateButton() {
-        this.button.style.transform = 'scale(0.98)';
-        setTimeout(() => this.button.style.transform = '', 100);
-    }
-
     async processQuoteSubmission(inputValue) {
         try {
             const cachedCoords = appState.getCachedCoordinates(inputValue);
@@ -99,7 +89,6 @@ class QuoteVisualizer {
         }
         
         if (this.canSubmitRequest()) {
-            this.animateButton();
             await this.processQuoteSubmission(inputValue);
         }
     }
