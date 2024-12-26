@@ -9,6 +9,8 @@ class QuoteVisualizer {
         this.setupEventListeners();
         this.initialize();
         this.requestTimeout = null;
+        this.lastProcessedInput = '';
+        this.startInputCheckInterval();
     }
 
     setupDOMElements() {
@@ -124,6 +126,18 @@ class QuoteVisualizer {
         }
     }
 
+    startInputCheckInterval() {
+        setInterval(() => {
+            const currentInput = this.input.value.trim();
+            const isValid = currentInput !== '';
+            const isChanged = currentInput !== this.lastProcessedInput;
+            if (isValid && isChanged) {
+                this.lastProcessedInput = currentInput;
+                this.processQuoteSubmission(currentInput);
+            }
+        }, API_CONFIG.REQUEST_CHECK_INTERVAL);
+    }
+
     async handleUserInput() {
         const inputValue = this.input.value.trim();
         
@@ -132,20 +146,11 @@ class QuoteVisualizer {
             this.displaySimilarQuotes([]); // Clear similar quotes when input is empty
             return;
         }
-
-        // Clear any existing timeout
-        if (this.requestTimeout) {
-            clearTimeout(this.requestTimeout);
-        }
         
+        // Only process immediately if we can submit a request
         if (this.canSubmitRequest()) {
             await this.processQuoteSubmission(inputValue);
-        } else {
-            // Schedule the request to be sent after the interval
-            this.requestTimeout = setTimeout(async () => {
-                await this.processQuoteSubmission(inputValue);
-                appState.updateLastRequestTime();
-            }, API_CONFIG.REQUEST_INTERVAL);
+            this.lastProcessedInput = inputValue; // Update last processed input
         }
     }
 }
