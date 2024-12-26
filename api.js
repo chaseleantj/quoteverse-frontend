@@ -38,7 +38,8 @@ class ApiService {
         }
     }
 
-    async getSimilarQuotes(quote, k = 5) {
+    async getSimilarQuotes(quote) {
+        const k = API_CONFIG.MAX_SIMILAR_QUOTE_COUNT;
         try {
             const response = await fetch(`${API_CONFIG.BASE_URL}/get-similar-quotes/?k=${k}`, {
                 method: 'POST',

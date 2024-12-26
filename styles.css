@@ -15,29 +15,22 @@
     --color-input-bg: rgba(31, 41, 55, 0.8);
     --color-input-bg-focus: rgba(31, 41, 55, 0.95);
     --color-input-border: rgba(55, 65, 81, 0.5);
+    --color-input-border-focus: rgba(118, 132, 155, 0.7);
     --color-input-placeholder: #9ca3af;
     
-    /* Colors: Button */
-    --color-button-bg: #2563eb;
-    --color-button-bg-hover: #3b82f6;
-    --color-button-shadow: rgba(59, 130, 246, 0.2);
-    --color-button-shadow-hover: rgba(59, 130, 246, 0.3);
-    
     /* Colors: Points & Tooltips */
-    --color-point: rgba(254, 255, 219, 0.8);
-    --color-point-hover: rgba(254, 255, 219, 0.9);
-    --color-point-active: rgba(240, 243, 200, 1);
-    --color-point-glow-hover: rgba(255, 249, 87, 1);
-    --color-point-glow-active: rgb(255, 255, 152);
+    --color-point: rgba(255, 255, 220, 0.1);
+    --color-point-bright: rgba(255, 255, 220, 1);
+    --color-point-glow: rgba(255, 255, 152, 1);
     --color-tooltip-bg: rgba(31, 41, 55, 1);
     --color-tooltip-shadow: rgba(0, 0, 0, 0.1);
 
     /* Animation */
-    --transition-duration: 0.2s;
+    --transition-duration: 0.4s;
     --transition-timing: ease;
 
     /* Sidebar Width */
-    --sidebar-width: 300px;
+    --sidebar-width: 350px;
 }
 
 /* ==========================================================================
@@ -65,6 +58,7 @@ main {
 /* ==========================================================================
    Input Container
    ========================================================================== */
+
 .input-container {
     position: fixed;
     top: 0;
@@ -108,8 +102,46 @@ input::placeholder {
 
 input:focus {
     outline: none;
+    border: 1px solid var(--color-input-border-focus);
+}
+
+/* ==========================================================================
+   Similar Quotes Container
+   ========================================================================== */
+
+   .similar-quotes-container {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+.similar-quote {
+    background-color: var(--color-input-bg);
+    border: 1px solid var(--color-input-border);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    font-size: 14px;
+    transition: all var(--transition-duration) var(--transition-timing);
+}
+
+.similar-quote:hover {
     background-color: var(--color-input-bg-focus);
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+
+.similar-quote-text {
+    margin-bottom: 0.5rem;
+}
+
+.similar-quote-author {
+    font-style: italic;
+    color: var(--color-input-placeholder);
+}
+
+.similar-quote-similarity {
+    font-size: 12px;
+    color: var(--color-input-placeholder);
+    margin-top: 0.5rem;
 }
 
 /* ==========================================================================
@@ -151,7 +183,6 @@ input:focus {
     border-radius: 50%;
     cursor: pointer;
     background-color: var(--color-point);
-    box-shadow: 0 0 5px var(--color-point-glow-hover);
     transition: all var(--transition-duration) var(--transition-timing);
     pointer-events: auto;
     transform-style: preserve-3d;
@@ -160,14 +191,14 @@ input:focus {
 
 .plot-point:hover {
     transform: translateZ(0) scale(2);
-    background-color: var(--color-point-hover);
-    box-shadow: 0 0 15px var(--color-point-glow-hover);
+    background-color: var(--color-point-bright);
+    box-shadow: 0 0 10px var(--color-point-glow);
     cursor: pointer;
 }
 
 .plot-point.point-active {
     transform: translateZ(0) scale(2);
-    background-color: var(--color-point-active);
+    background-color: var(--color-point-bright);
 }
 
 .point-tooltip {
@@ -193,4 +224,26 @@ input:focus {
 .point-tooltip.tooltip-active {
     display: block;
     transform: translate(-50%, -100%) translateZ(30px);
+}
+
+/* ==========================================================================
+   Scrollbar Styling
+   ========================================================================== */
+.similar-quotes-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.similar-quotes-container::-webkit-scrollbar-track {
+    background: var(--color-input-bg);
+    border-radius: 4px;
+}
+
+.similar-quotes-container::-webkit-scrollbar-thumb {
+    background: var(--color-input-border-focus);
+    border-radius: 4px;
+    transition: all var(--transition-duration) var(--transition-timing);
+}
+
+.similar-quotes-container::-webkit-scrollbar-thumb:hover {
+    background: var(--color-input-placeholder);
 }

@@ -1,7 +1,8 @@
 export const API_CONFIG = {
     BASE_URL: 'http://localhost:8000/quotes',
     MAX_QUOTE_COUNT: 2000,
-    REQUEST_INTERVAL: 100
+    MAX_SIMILAR_QUOTE_COUNT: 10,
+    REQUEST_INTERVAL: 100,
 };
 
 export const COLORS = {
@@ -9,5 +10,8 @@ export const COLORS = {
 };
 
 export const CANVAS_CONFIG = {
-    SCALE: 300,
+    DEFAULT_SCALE: 200,
+    MIN_SCALE: 50,
+    MAX_SCALE: 2000,
+    ZOOM_FACTOR: 1.1,
 }; 

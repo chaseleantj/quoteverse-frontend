@@ -13,9 +13,9 @@ class Canvas {
         this.startY = 0;
         this.offsetX = 0;
         this.offsetY = 0;
-        this.scale = CANVAS_CONFIG.SCALE;
-        this.minScale = 10;  // Minimum zoom level
-        this.maxScale = 500; // Maximum zoom level
+        this.scale = CANVAS_CONFIG.DEFAULT_SCALE;
+        this.minScale = CANVAS_CONFIG.MIN_SCALE;
+        this.maxScale = CANVAS_CONFIG.MAX_SCALE;
         
         // For pinch zoom
         this.touchDistance = 0;
@@ -32,7 +32,7 @@ class Canvas {
         this.styles = {
             highlightColor: rootStyles.getPropertyValue('--button-hover-bg').trim(),
             defaultPointColor: rootStyles.getPropertyValue('--color-point').trim(),
-            activePointColor: rootStyles.getPropertyValue('--color-point-active').trim()
+            activePointColor: rootStyles.getPropertyValue('--color-point-bright').trim()
         };
         this.scale = CANVAS_CONFIG.SCALE;
     }
@@ -188,7 +188,7 @@ class Canvas {
     }
 
     handleZoom(e) {
-        const zoomFactor = 1.05;
+        const zoomFactor = CANVAS_CONFIG.ZOOM_FACTOR;
         let direction = e.deltaY < 0 ? zoomFactor : 1 / zoomFactor;
         
         // Get mouse position relative to canvas

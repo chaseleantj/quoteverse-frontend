@@ -1,5 +1,5 @@
 import canvas from './canvas.js';
-import { API_CONFIG, COLORS } from './config.js';
+import { API_CONFIG } from './config.js';
 import { apiService } from './api.js';
 import { appState } from './state.js';
 
@@ -8,10 +8,12 @@ class QuoteVisualizer {
         this.setupDOMElements();
         this.setupEventListeners();
         this.initialize();
+        this.requestTimeout = null;
     }
 
     setupDOMElements() {
         this.input = document.querySelector('input');
+        this.similarQuotesContainer = document.querySelector('.similar-quotes-container');
     }
 
     setupEventListeners() {
@@ -21,6 +23,17 @@ class QuoteVisualizer {
             setTimeout(async () => {
                 await this.handleUserInput();
             }, 10);
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if ((event.ctrlKey || event.metaKey) && event.key === '/') {
+                event.preventDefault();
+                if (document.activeElement === this.input) {
+                    this.input.blur();
+                } else {
+                    this.input.focus();
+                }
+            }
         });
     }
 
@@ -64,6 +77,38 @@ class QuoteVisualizer {
         return false;
     }
 
+    displaySimilarQuotes(similarQuotes) {
+        this.similarQuotesContainer.innerHTML = '';
+        
+        if (!similarQuotes || !similarQuotes.length) return;
+        
+        // Sort quotes by similarity (cosine distance, lowest first)
+        const sortedQuotes = [...similarQuotes].sort((a, b) => a.similarity - b.similarity);
+        
+        sortedQuotes.forEach(quote => {
+            const quoteElement = document.createElement('div');
+            quoteElement.className = 'similar-quote';
+            
+            const textElement = document.createElement('div');
+            textElement.className = 'similar-quote-text';
+            textElement.textContent = quote.text;
+            
+            const authorElement = document.createElement('div');
+            authorElement.className = 'similar-quote-author';
+            authorElement.textContent = quote.author || 'Unknown';
+            
+            const similarityElement = document.createElement('div');
+            similarityElement.className = 'similar-quote-similarity';
+            similarityElement.textContent = `Distance: ${(quote.distance * 100).toFixed(1)}%`;
+            
+            quoteElement.appendChild(textElement);
+            quoteElement.appendChild(authorElement);
+            quoteElement.appendChild(similarityElement);
+            
+            this.similarQuotesContainer.appendChild(quoteElement);
+        });
+    }
+
     async processQuoteSubmission(inputValue) {
         try {
             const cachedSimilarQuotes = appState.getCachedSimilarQuotes(inputValue);
@@ -72,7 +117,8 @@ class QuoteVisualizer {
             if (!cachedSimilarQuotes) {
                 appState.setCachedSimilarQuotes(inputValue, similarQuotes);
             }
-            console.log(inputValue, similarQuotes); // remove later
+            
+            this.displaySimilarQuotes(similarQuotes);
         } catch (error) {
             console.error('Error submitting quote:', error);
         }
@@ -83,11 +129,23 @@ class QuoteVisualizer {
         
         if (!inputValue) {
             this.refreshCanvas();
+            this.displaySimilarQuotes([]); // Clear similar quotes when input is empty
             return;
+        }
+
+        // Clear any existing timeout
+        if (this.requestTimeout) {
+            clearTimeout(this.requestTimeout);
         }
         
         if (this.canSubmitRequest()) {
             await this.processQuoteSubmission(inputValue);
+        } else {
+            // Schedule the request to be sent after the interval
+            this.requestTimeout = setTimeout(async () => {
+                await this.processQuoteSubmission(inputValue);
+                appState.updateLastRequestTime();
+            }, API_CONFIG.REQUEST_INTERVAL);
         }
     }
 }
