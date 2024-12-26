@@ -9,5 +9,5 @@ export const COLORS = {
 };
 
 export const CANVAS_CONFIG = {
-    SCALE: 150,
+    SCALE: 300,
 }; 

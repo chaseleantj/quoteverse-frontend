@@ -2,7 +2,7 @@ class AppState {
     constructor() {
         this.existingQuotes = [];
         this.lastRequestTime = 0;
-        this.coordinatesCache = new Map();
+        this.similarQuotesCache = new Map();
         this.subscribers = new Set();
     }
 
@@ -23,12 +23,12 @@ class AppState {
         return this.lastRequestTime;
     }
 
-    getCachedCoordinates(quote) {
-        return this.coordinatesCache.get(quote);
+    getCachedSimilarQuotes(quote) {
+        return this.similarQuotesCache.get(quote);
     }
 
-    setCachedCoordinates(quote, coordinates) {
-        this.coordinatesCache.set(quote, coordinates);
+    setCachedSimilarQuotes(quote, similarQuotes) {
+        this.similarQuotesCache.set(quote, similarQuotes);
     }
 
     subscribe(callback) {
@@ -41,5 +41,9 @@ class AppState {
     }
 }
 
+// Expose appState to the global window object
 export const appState = new AppState();
+
+// To test the appState in the console
+window.appState = appState;
 export default appState; 

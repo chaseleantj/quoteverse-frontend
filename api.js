@@ -9,8 +9,8 @@ class ApiService {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const data = await response.json();
-            return data.quotes;
+            const result = await response.json();
+            return result.data.quotes;
         } catch (error) {
             console.error('Error fetching existing quotes:', error);
             throw error;
@@ -30,10 +30,31 @@ class ApiService {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const data = await response.json();
-            return data.coords[0];
+            const result = await response.json();
+            return result.data.coordinates[0].coords;
         } catch (error) {
             console.error('Error getting quote coordinates:', error);
+            throw error;
+        }
+    }
+
+    async getSimilarQuotes(quote, k = 5) {
+        try {
+            const response = await fetch(`${API_CONFIG.BASE_URL}/get-similar-quotes/?k=${k}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify([quote]),
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const result = await response.json();
+            return result.data.queries[0].similar_quotes;
+        } catch (error) {
+            console.error('Error getting similar quotes:', error);
             throw error;
         }
     }

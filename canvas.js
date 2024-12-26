@@ -127,7 +127,15 @@ class Canvas {
     createTooltipElement(quote) {
         const tooltip = document.createElement('div');
         tooltip.className = 'point-tooltip';
-        tooltip.textContent = quote;
+        
+        // Create text content with quote and author
+        const quoteText = document.createTextNode(`${quote.text} - `);
+        const authorSpan = document.createElement('em');
+        authorSpan.textContent = quote.author || 'Unknown';
+        
+        tooltip.appendChild(quoteText);
+        tooltip.appendChild(authorSpan);
+        
         return tooltip;
     }
 

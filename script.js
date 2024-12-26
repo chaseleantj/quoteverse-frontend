@@ -49,7 +49,7 @@ class QuoteVisualizer {
             quote.coords[0],
             quote.coords[1],
             color,
-            quote.text || 'Loading...'
+            quote
         );
     }
 
@@ -66,15 +66,13 @@ class QuoteVisualizer {
 
     async processQuoteSubmission(inputValue) {
         try {
-            const cachedCoords = appState.getCachedCoordinates(inputValue);
-            const coordinates = cachedCoords || await apiService.getQuoteCoordinates(inputValue);
+            const cachedSimilarQuotes = appState.getCachedSimilarQuotes(inputValue);
+            const similarQuotes = cachedSimilarQuotes || await apiService.getSimilarQuotes(inputValue);
             
-            if (!cachedCoords) {
-                appState.setCachedCoordinates(inputValue, coordinates);
+            if (!cachedSimilarQuotes) {
+                appState.setCachedSimilarQuotes(inputValue, similarQuotes);
             }
-
-            this.refreshCanvas();
-            this.plotQuote({ text: inputValue, coords: coordinates }, COLORS.HIGHLIGHT);
+            console.log(inputValue, similarQuotes); // remove later
         } catch (error) {
             console.error('Error submitting quote:', error);
         }
