@@ -40,8 +40,9 @@ class ApiService {
 
     async getSimilarQuotes(quote) {
         const k = API_CONFIG.MAX_SIMILAR_QUOTE_COUNT;
+        const max_distance = API_CONFIG.MAX_SIMILAR_QUOTE_DISTANCE;
         try {
-            const response = await fetch(`${API_CONFIG.BASE_URL}/get-similar-quotes/?k=${k}`, {
+            const response = await fetch(`${API_CONFIG.BASE_URL}/get-similar-quotes/?k=${k}&max_distance=${max_distance}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

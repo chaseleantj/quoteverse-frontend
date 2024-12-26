@@ -9,7 +9,7 @@
 :root {
     /* Colors: Text & Background */
     --color-text-primary: #f3f4f6;
-    --color-bg-primary: #111827;
+    --color-bg-primary: #111727;
     
     /* Colors: Input */
     --color-input-bg: rgba(31, 41, 55, 0.8);
@@ -19,11 +19,13 @@
     --color-input-placeholder: #9ca3af;
     
     /* Colors: Points & Tooltips */
-    --color-point: rgba(255, 255, 220, 0.1);
+    --color-point: rgba(255, 255, 220, 0.05);
     --color-point-bright: rgba(255, 255, 220, 1);
     --color-point-glow: rgba(255, 255, 152, 1);
+
     --color-tooltip-bg: rgba(31, 41, 55, 1);
     --color-tooltip-shadow: rgba(0, 0, 0, 0.1);
+    --max-point-scale: 2;
 
     /* Animation */
     --transition-duration: 0.4s;
@@ -178,8 +180,8 @@ input:focus {
 
 .plot-point {
     position: absolute;
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     cursor: pointer;
     background-color: var(--color-point);
@@ -187,17 +189,20 @@ input:focus {
     pointer-events: auto;
     transform-style: preserve-3d;
     transform: translateZ(0);
+    background-color: var(--individual-point-color);
+    transform: translateZ(0) scale(var(--individual-point-scale));
+    --individual-point-scale: 1;
+    --individual-point-color: var(--color-point);
 }
 
 .plot-point:hover {
-    transform: translateZ(0) scale(2);
+    transform: translateZ(0) scale(var(--max-point-scale));
     background-color: var(--color-point-bright);
     box-shadow: 0 0 10px var(--color-point-glow);
-    cursor: pointer;
 }
 
 .plot-point.point-active {
-    transform: translateZ(0) scale(2);
+    transform: translateZ(0) scale(var(--max-point-scale));
     background-color: var(--color-point-bright);
 }
 

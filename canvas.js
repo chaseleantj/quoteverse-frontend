@@ -115,11 +115,15 @@ class Canvas {
         }
     }
 
-    createPointElement(color) {
+    createPointElement(color, scale, quote) {
         const point = document.createElement('div');
         point.className = 'plot-point';
+        point.dataset.quoteId = quote.id;
         if (color) {
-            point.style.backgroundColor = color;
+            point.style.setProperty('--individual-point-color', color);
+        }
+        if (scale) {
+            point.style.setProperty('--individual-point-scale', scale);
         }
         return point;
     }
@@ -139,18 +143,17 @@ class Canvas {
         return tooltip;
     }
 
-    plotPoint(x, y, color, quote) {
+    plotPoint(x, y, color, scale, quote) {
         const pixel = this.worldToPixel(x, y);
         const wrapper = document.createElement('div');
         wrapper.className = 'point-wrapper';
         wrapper.style.left = `${pixel.x}px`;
         wrapper.style.top = `${pixel.y}px`;
         
-        // Store world coordinates as data attributes
         wrapper.dataset.worldX = x;
         wrapper.dataset.worldY = y;
 
-        const point = this.createPointElement(color);
+        const point = this.createPointElement(color, scale, quote);
         const tooltip = this.createTooltipElement(quote);
         
         wrapper.appendChild(point);
