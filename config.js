@@ -1,6 +1,6 @@
 export const API_CONFIG = {
     BASE_URL: 'http://localhost:8000/quotes',
-    MAX_QUOTE_COUNT: 2000,
+    MAX_QUOTE_COUNT: 3000,
     MAX_SIMILAR_QUOTE_COUNT: 30,
     MAX_SIMILAR_QUOTE_DISTANCE: 0.7,
     REQUEST_INTERVAL: 50,

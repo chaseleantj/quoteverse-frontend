@@ -26,6 +26,7 @@
     --color-tooltip-bg: rgba(31, 41, 55, 1);
     --color-tooltip-shadow: rgba(0, 0, 0, 0.1);
     --max-point-scale: 2;
+    --max-similar-point-scale: 3;
 
     /* Animation */
     --transition-duration: 0.4s;
@@ -33,6 +34,9 @@
 
     /* Sidebar Width */
     --sidebar-width: 300px;
+
+    /* Transition Durations */
+    --transition-duration: 0.2s;
 }
 
 /* ==========================================================================
@@ -111,13 +115,14 @@ input:focus {
    Similar Quotes Container
    ========================================================================== */
 
-   .similar-quotes-container {
+.similar-quotes-container {
     flex: 1;
     padding: 1.5rem;
     overflow-y: auto;
 }
 
 .similar-quote {
+    position: relative;
     background-color: var(--color-input-bg);
     border: 1px solid var(--color-input-border);
     border-radius: 0.75rem;
@@ -128,6 +133,7 @@ input:focus {
 }
 
 .similar-quote:hover {
+    border: 1px solid var(--color-input-border-focus);
     background-color: var(--color-input-bg-focus);
 }
 
@@ -199,12 +205,21 @@ input:focus {
     transform: translateZ(0) scale(var(--max-point-scale));
     background-color: var(--color-point-bright);
     box-shadow: 0 0 10px var(--color-point-glow);
+    transition: all var(--transition-duration) var(--transition-timing);
 }
 
 .plot-point.point-active {
     transform: translateZ(0) scale(var(--max-point-scale));
     background-color: var(--color-point-bright);
 }
+
+.plot-point.point-similar {
+    box-shadow: 0 0 10px var(--individual-point-color);
+}
+
+.plot-point.point-active.point-similar {
+    transform: translateZ(0) scale(var(--max-similar-point-scale));
+}   
 
 .point-tooltip {
     position: absolute;
@@ -251,4 +266,19 @@ input:focus {
 
 .similar-quotes-container::-webkit-scrollbar-thumb:hover {
     background: var(--color-input-placeholder);
+}
+
+.copy-icon {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    bottom: 10px;
+    right: 10px;
+    color: var(--color-input-border-focus);
+    cursor: pointer;
+    transition: all var(--transition-duration-short) var(--transition-timing);
+}
+
+.copy-icon.flash {
+    color: var(--color-input-placeholder);
 }

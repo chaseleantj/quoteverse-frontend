@@ -82,6 +82,7 @@ class QuoteVisualizer {
     createAndAppendQuoteElement(quote) {
         const quoteElement = document.createElement('div');
         quoteElement.className = 'similar-quote';
+        quoteElement.dataset.quoteId = quote.id;
         
         const elements = [
             { className: 'similar-quote-text', content: quote.text },
@@ -94,6 +95,43 @@ class QuoteVisualizer {
             element.className = className;
             element.textContent = content;
             quoteElement.appendChild(element);
+        });
+
+        // Add copy icon
+        const copyIcon = document.createElement('i');
+        copyIcon.className = 'fa-regular fa-copy copy-icon';
+        quoteElement.appendChild(copyIcon);
+
+        // Copy functionality
+        const copyQuote = async () => {
+            const textToCopy = `${quote.text} - ${quote.author || 'Unknown'}`;
+            await navigator.clipboard.writeText(textToCopy);
+            
+            // Visual feedback
+            copyIcon.classList.add('flash');
+            setTimeout(() => copyIcon.classList.remove('flash'), 500);
+        };
+
+        // Add click handlers
+        quoteElement.addEventListener('click', copyQuote);
+        copyIcon.addEventListener('click', (e) => {
+            e.stopPropagation();  // Prevent double copying
+            copyQuote();
+        });
+        
+        // Add hover event listeners (existing code)
+        quoteElement.addEventListener('mouseenter', () => {
+            const pointElement = document.querySelector(`.plot-point[data-quote-id="${quote.id}"]`);
+            if (pointElement) {
+                pointElement.classList.add('point-active');
+            }
+        });
+
+        quoteElement.addEventListener('mouseleave', () => {
+            const pointElement = document.querySelector(`.plot-point[data-quote-id="${quote.id}"]`);
+            if (pointElement) {
+                pointElement.classList.remove('point-active');
+            }
         });
         
         this.similarQuotesContainer.appendChild(quoteElement);
@@ -127,6 +165,11 @@ class QuoteVisualizer {
             getComputedStyle(document.documentElement).getPropertyValue('--max-point-scale')
         );
         
+        // Remove point-similar class from all points first
+        document.querySelectorAll('.plot-point').forEach(point => {
+            point.classList.remove('point-similar');
+        });
+        
         similarQuotes.forEach(quote => {
             const existingQuote = appState.getQuotes().find(q => q.id === quote.id);
             if (!existingQuote) return;
@@ -141,7 +184,14 @@ class QuoteVisualizer {
             );
             
             const scale = 1 + (maxPointScale - 1) * smoothFactor;
-            this.updatePointElement(quote.id, color, scale);
+            
+            // Add point-similar class and update styles
+            const pointElement = document.querySelector(`.plot-point[data-quote-id="${quote.id}"]`);
+            if (pointElement) {
+                pointElement.classList.add('point-similar');
+                pointElement.style.setProperty('--individual-point-color', color);
+                pointElement.style.setProperty('--individual-point-scale', scale);
+            }
         });
     }
 
@@ -153,14 +203,6 @@ class QuoteVisualizer {
             point.style.setProperty('--individual-point-color', defaultColor);
             point.style.setProperty('--individual-point-scale', '1');
         });
-    }
-
-    updatePointElement(quoteId, color, scale) {
-        const pointElement = document.querySelector(`.plot-point[data-quote-id="${quoteId}"]`);
-        if (pointElement) {
-            pointElement.style.setProperty('--individual-point-color', color);
-            pointElement.style.setProperty('--individual-point-scale', scale);
-        }
     }
 
     startInputCheckInterval() {
