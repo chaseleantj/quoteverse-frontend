@@ -4,7 +4,7 @@ class ApiService {
     async fetchExistingQuotes() {
         try {
             const response = await fetch(
-                `${API_CONFIG.BASE_URL}/?count=${API_CONFIG.MAX_QUOTE_COUNT}`
+                `${API_CONFIG.BASE_URL}/?count=${API_CONFIG.MAX_QUOTE_COUNT}&randomize=${API_CONFIG.RANDOMIZE_QUOTES}`
             );
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
