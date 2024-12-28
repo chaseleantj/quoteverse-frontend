@@ -87,7 +87,7 @@ class QuoteVisualizer {
         const elements = [
             { className: 'similar-quote-text', content: quote.text },
             { className: 'similar-quote-author', content: quote.author || 'Unknown' },
-            { className: 'similar-quote-similarity', content: `Distance: ${(quote.distance * 100).toFixed(1)}%` }
+            // { className: 'similar-quote-similarity', content: `Distance: ${(quote.distance * 100).toFixed(1)}%` }
         ];
 
         elements.forEach(({ className, content }) => {

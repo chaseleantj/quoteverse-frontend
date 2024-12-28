@@ -146,11 +146,11 @@ input:focus {
     color: var(--color-input-placeholder);
 }
 
-.similar-quote-similarity {
+/* .similar-quote-similarity {
     font-size: 12px;
     color: var(--color-input-placeholder);
     margin-top: 0.5rem;
-}
+} */
 
 /* ==========================================================================
    Canvas Container
