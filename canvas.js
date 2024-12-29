@@ -160,19 +160,12 @@ class Canvas {
         wrapper.appendChild(tooltip);
         this.container.appendChild(wrapper);
 
-        wrapper.addEventListener('click', () => this.handlePointClick(point, tooltip));
+        wrapper.addEventListener('click', () => this.copyTooltipText(tooltip));
     }
 
-    handlePointClick(point, tooltip) {
-        if(point.classList.contains('point-active')) {
-            point.classList.remove('point-active');
-            tooltip.classList.remove('tooltip-active');
-            return;
-        }
-        else{
-            point.classList.add('point-active');
-            tooltip.classList.add('tooltip-active');
-        }
+    copyTooltipText(tooltip) {
+        const tooltipText = tooltip.textContent;
+        navigator.clipboard.writeText(tooltipText);
     }
 
     // Update all point positions based on current scale and offset

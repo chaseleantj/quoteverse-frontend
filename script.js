@@ -1,8 +1,9 @@
 import canvas from './canvas.js';
-import { API_CONFIG } from './config.js';
+import { API_CONFIG, INSTRUCTIONS } from './config.js';
 import { apiService } from './api.js';
 import { appState } from './state.js';
 import { sigmoid, interpolateColor, createPointElement } from './utils.js';
+
 
 class QuoteVisualizer {
     constructor() {
@@ -17,6 +18,12 @@ class QuoteVisualizer {
     setupDOMElements() {
         this.input = document.querySelector('input');
         this.similarQuotesContainer = document.querySelector('.similar-quotes-container');
+        
+        // Show initial instructions
+        const instructions = document.createElement('div');
+        instructions.className = 'quote-instructions';
+        instructions.textContent = INSTRUCTIONS.EMPTY_INPUT;
+        this.similarQuotesContainer.appendChild(instructions);
     }
 
     setupEventListeners() {
@@ -73,7 +80,24 @@ class QuoteVisualizer {
 
     displaySimilarQuotes(similarQuotes) {
         this.similarQuotesContainer.innerHTML = '';
-        if (!similarQuotes?.length) return;
+        
+        // If input is empty, show initial instructions
+        if (!this.input.value.trim()) {
+            const instructions = document.createElement('div');
+            instructions.className = 'quote-instructions';
+            instructions.textContent = INSTRUCTIONS.EMPTY_INPUT;
+            this.similarQuotesContainer.appendChild(instructions);
+            return;
+        }
+        
+        // If no similar quotes found but input exists
+        if (!similarQuotes?.length) {
+            const noResults = document.createElement('div');
+            noResults.className = 'quote-instructions';
+            noResults.textContent = INSTRUCTIONS.NO_RESULTS;
+            this.similarQuotesContainer.appendChild(noResults);
+            return;
+        }
         
         const sortedQuotes = [...similarQuotes].sort((a, b) => a.similarity - b.similarity);
         sortedQuotes.forEach(quote => this.createAndAppendQuoteElement(quote));
@@ -104,12 +128,18 @@ class QuoteVisualizer {
 
         // Copy functionality
         const copyQuote = async () => {
-            const textToCopy = `${quote.text} - ${quote.author || 'Unknown'}`;
+            const textToCopy = quote.text + ' - ' + (quote.author ? quote.author : 'Unknown');
             await navigator.clipboard.writeText(textToCopy);
             
-            // Visual feedback
-            copyIcon.classList.add('flash');
-            setTimeout(() => copyIcon.classList.remove('flash'), 500);
+            // Change icon to tick
+            copyIcon.classList.remove('fa-regular', 'fa-copy');
+            copyIcon.classList.add('fa-solid', 'fa-check');
+            
+            // Change back to copy icon after 500ms
+            setTimeout(() => {
+                copyIcon.classList.remove('fa-solid', 'fa-check');
+                copyIcon.classList.add('fa-regular', 'fa-copy');
+            }, 500);
         };
 
         // Add click handlers

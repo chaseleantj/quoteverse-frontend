@@ -8,23 +8,23 @@
    ========================================================================== */
 :root {
     /* Colors: Text & Background */
-    --color-text-primary: #f3f4f6;
-    --color-bg-primary: #111727;
+    --color-text-primary: rgb(250, 250, 255);
+    --color-bg-primary: rgb(20, 20, 30);
     
     /* Colors: Input */
-    --color-input-bg: rgba(31, 41, 55, 0.8);
-    --color-input-bg-focus: rgba(31, 41, 55, 0.95);
-    --color-input-border: rgba(55, 65, 81, 0.5);
-    --color-input-border-focus: rgba(118, 132, 155, 0.7);
-    --color-input-placeholder: #9ca3af;
+    --gray100: rgba(30, 40, 55, 0.8);
+    --gray200: rgba(30, 40, 55, 0.95);
+    --gray300: rgba(55, 65, 80, 0.5);
+    --gray400: rgba(120, 130, 155, 0.7);
+    --gray500: rgba(190, 190, 200, 0.7);
     
     /* Colors: Points & Tooltips */
+    --color-tooltip-shadow: rgba(0, 0, 0, 0.1);
+
     --color-point: rgba(255, 255, 220, 0.05);
     --color-point-bright: rgba(255, 255, 220, 1);
     --color-point-glow: rgba(255, 255, 152, 1);
 
-    --color-tooltip-bg: rgba(31, 41, 55, 1);
-    --color-tooltip-shadow: rgba(0, 0, 0, 0.1);
     --max-point-scale: 2;
     --max-similar-point-scale: 3;
 
@@ -73,7 +73,7 @@ main {
     width: var(--sidebar-width);
     background-color: rgba(31, 41, 55, 0.4);
     backdrop-filter: blur(16px);
-    border-right: 1px solid var(--color-input-border);
+    border-right: 1px solid var(--gray300);
     display: flex;
     flex-direction: column;
     z-index: 10;
@@ -88,27 +88,71 @@ main {
 }
 
 /* ==========================================================================
+   Title Container
+   ========================================================================== */
+   
+   .title-container {
+    padding: 1rem 2rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.title-container h1 {
+    font-size: 1.25rem;
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    background: linear-gradient(
+        to right,
+        var(--color-text-primary) 0%,
+        rgba(243, 244, 246, 0.7) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.title-star {
+    position: absolute;
+    top: 0.9rem;
+    left: 1.6rem;
+    font-size: 0.6rem;
+    color: var(--color-point-bright);
+    opacity: 0.9;
+    filter: drop-shadow(0 0 8px var(--color-point-glow));
+    animation: rotate-star 10s linear infinite;
+}
+
+@keyframes rotate-star {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ==========================================================================
    Input Field
    ========================================================================== */
+   
 input {
     width: 100%;
-    background-color: var(--color-input-bg);
+    background-color: var(--gray100);
     color: var(--color-text-primary);
     padding: 0.875rem 1rem;
     border-radius: 0.75rem;
-    border: 1px solid var(--color-input-border);
+    border: 1px solid var(--gray300);
     font-size: 15px;
     font-family: inherit;
     transition: all var(--transition-duration) var(--transition-timing);
 }
 
 input::placeholder {
-    color: var(--color-input-placeholder);
+    color: var(--gray500);
 }
 
 input:focus {
     outline: none;
-    border: 1px solid var(--color-input-border-focus);
+    border: 1px solid var(--gray400);
 }
 
 /* ==========================================================================
@@ -117,24 +161,25 @@ input:focus {
 
 .similar-quotes-container {
     flex: 1;
-    padding: 1.5rem;
+    padding: 0 1.5rem;
     overflow-y: auto;
 }
 
 .similar-quote {
     position: relative;
-    background-color: var(--color-input-bg);
-    border: 1px solid var(--color-input-border);
+    background-color: var(--gray100);
+    border: 1px solid var(--gray300);
     border-radius: 0.75rem;
     padding: 1rem;
     margin-bottom: 0.75rem;
     font-size: 14px;
     transition: all var(--transition-duration) var(--transition-timing);
+    cursor: pointer;
 }
 
 .similar-quote:hover {
-    border: 1px solid var(--color-input-border-focus);
-    background-color: var(--color-input-bg-focus);
+    border: 1px solid var(--gray400);
+    background-color: var(--gray200);
 }
 
 .similar-quote-text {
@@ -143,14 +188,47 @@ input:focus {
 
 .similar-quote-author {
     font-style: italic;
-    color: var(--color-input-placeholder);
+    color: var(--gray500);
 }
 
-/* .similar-quote-similarity {
-    font-size: 12px;
-    color: var(--color-input-placeholder);
-    margin-top: 0.5rem;
-} */
+.copy-icon {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    bottom: 10px;
+    right: 10px;
+    color: var(--gray400);
+    cursor: pointer;
+}
+
+.quote-instructions {
+    margin-top: 1rem;
+    font-size: 14px;
+    color: var(--gray500);
+}
+
+/* ==========================================================================
+   Scrollbar Styling
+   ========================================================================== */
+
+.similar-quotes-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.similar-quotes-container::-webkit-scrollbar-track {
+    background: var(--gray100);
+    border-radius: 4px;
+}
+
+.similar-quotes-container::-webkit-scrollbar-thumb {
+    background: var(--gray400);
+    border-radius: 4px;
+    transition: all var(--transition-duration) var(--transition-timing);
+}
+
+.similar-quotes-container::-webkit-scrollbar-thumb:hover {
+    background: var(--gray500);
+}
 
 /* ==========================================================================
    Canvas Container
@@ -176,7 +254,6 @@ input:focus {
    Plot Points & Tooltips
    ========================================================================== */
    
-/* Point Wrapper */
 .point-wrapper {
     position: absolute;
     transform-style: preserve-3d;
@@ -224,7 +301,7 @@ input:focus {
 .point-tooltip {
     position: absolute;
     display: none;
-    background-color: var(--color-tooltip-bg);
+    background-color: var(--gray200);
     color: var(--color-text-primary);
     padding: 8px 12px;
     border-radius: 6px;
@@ -246,39 +323,3 @@ input:focus {
     transform: translate(-50%, -100%) translateZ(30px);
 }
 
-/* ==========================================================================
-   Scrollbar Styling
-   ========================================================================== */
-.similar-quotes-container::-webkit-scrollbar {
-    width: 8px;
-}
-
-.similar-quotes-container::-webkit-scrollbar-track {
-    background: var(--color-input-bg);
-    border-radius: 4px;
-}
-
-.similar-quotes-container::-webkit-scrollbar-thumb {
-    background: var(--color-input-border-focus);
-    border-radius: 4px;
-    transition: all var(--transition-duration) var(--transition-timing);
-}
-
-.similar-quotes-container::-webkit-scrollbar-thumb:hover {
-    background: var(--color-input-placeholder);
-}
-
-.copy-icon {
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    bottom: 10px;
-    right: 10px;
-    color: var(--color-input-border-focus);
-    cursor: pointer;
-    transition: all var(--transition-duration-short) var(--transition-timing);
-}
-
-.copy-icon.flash {
-    color: var(--color-input-placeholder);
-}
