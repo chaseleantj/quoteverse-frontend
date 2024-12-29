@@ -170,6 +170,13 @@ class QuoteVisualizer {
     async processQuoteSubmission(inputValue) {
         try {
             const similarQuotes = await this.getSimilarQuotesWithCache(inputValue);
+            
+            // Update state with new quotes while maintaining max quote count
+            appState.updateQuotesWithSimilar(
+                similarQuotes, 
+                API_CONFIG.MAX_QUOTE_COUNT
+            );
+            
             this.updatePointVisualization(similarQuotes);
             this.displaySimilarQuotes(similarQuotes);
         } catch (error) {
@@ -195,16 +202,17 @@ class QuoteVisualizer {
             getComputedStyle(document.documentElement).getPropertyValue('--max-point-scale')
         );
         
-        // Remove point-similar class from all points first
-        document.querySelectorAll('.plot-point').forEach(point => {
-            point.classList.remove('point-similar');
-        });
+        // Create a map of similar quotes for O(1) lookup
+        const similarQuotesMap = new Map(
+            similarQuotes.map(q => [q.id, q])
+        );
         
-        similarQuotes.forEach(quote => {
-            const existingQuote = appState.getQuotes().find(q => q.id === quote.id);
-            if (!existingQuote) return;
+        // Update all points, including newly added ones
+        appState.getQuotes().forEach(quote => {
+            const similarQuote = similarQuotesMap.get(quote.id);
+            if (!similarQuote) return;
 
-            const brightness = 1 - quote.distance;
+            const brightness = 1 - similarQuote.distance;
             const smoothFactor = sigmoid(brightness);
             
             const color = interpolateColor(
@@ -215,7 +223,6 @@ class QuoteVisualizer {
             
             const scale = 1 + (maxPointScale - 1) * smoothFactor;
             
-            // Add point-similar class and update styles
             const pointElement = document.querySelector(`.plot-point[data-quote-id="${quote.id}"]`);
             if (pointElement) {
                 pointElement.classList.add('point-similar');

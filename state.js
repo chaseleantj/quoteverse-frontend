@@ -39,6 +39,28 @@ class AppState {
     notifySubscribers() {
         this.subscribers.forEach(callback => callback(this.existingQuotes));
     }
+
+    updateQuotesWithSimilar(similarQuotes, maxQuotes) {
+        // Create a Set of existing quote IDs for O(1) lookup
+        const existingIds = new Set(this.existingQuotes.map(q => q.id));
+        
+        // Filter out similar quotes that are already in existing quotes
+        const newQuotes = similarQuotes.filter(q => !existingIds.has(q.id));
+        
+        if (newQuotes.length === 0) return;
+
+        // Sort existing quotes by similarity (undefined similarity = least similar)
+        // const sortedExisting = [...this.existingQuotes]
+        //   .sort((a, b) => (b.similarity || 0) - (a.similarity || 0));
+
+        // Remove least similar quotes to make room for new ones
+        const quotesToKeep = this.existingQuotes.slice(0, maxQuotes - newQuotes.length);
+        
+        // Combine kept quotes with new similar quotes
+        this.existingQuotes = [...quotesToKeep, ...newQuotes];
+        
+        this.notifySubscribers();
+    }
 }
 
 // Expose appState to the global window object
