@@ -222,8 +222,6 @@ class Canvas {
         if (newScale === this.scale) return;
 
         // Calculate the new offset to keep the target point stationary
-        // Formula:
-        // newOffset = scaleRatio * oldOffset + (1 - scaleRatio) * (target - center)
         const newOffsetX = actualZoomFactor * this.offsetX + (1 - actualZoomFactor) * (targetX - this.centerX);
         const newOffsetY = actualZoomFactor * this.offsetY + (1 - actualZoomFactor) * (targetY - this.centerY);
         
@@ -231,6 +229,12 @@ class Canvas {
         this.scale = newScale;
         this.offsetX = newOffsetX;
         this.offsetY = newOffsetY;
+
+        // Set zoom scale CSS variable
+        if (CANVAS_CONFIG.ZOOM_POINTS) {
+            const zoomScale = Math.max(0.5, Math.min(2, this.scale / CANVAS_CONFIG.DEFAULT_SCALE));
+            this.container.style.setProperty('--zoom-scale', zoomScale);
+        }
 
         // Update all point positions
         this.updateAllPointPositions();

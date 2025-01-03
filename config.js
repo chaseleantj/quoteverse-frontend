@@ -1,16 +1,16 @@
 export const API_CONFIG = {
-    // BASE_URL: 'http://localhost:8000/quotes',
-    BASE_URL: 'https://wordverse-er3iz.ondigitalocean.app/quotes',
+    BASE_URL: 'http://localhost:8000/quotes',
+    // BASE_URL: 'https://wordverse-er3iz.ondigitalocean.app/quotes',
     MAX_QUOTE_COUNT: 1000,
     MAX_SIMILAR_QUOTE_COUNT: 20,
-    MAX_SIMILAR_QUOTE_DISTANCE: 0.7,
+    MAX_SIMILAR_QUOTE_DISTANCE: 0.65,
     REQUEST_INTERVAL: 50,
     REQUEST_CHECK_INTERVAL: 1000,
     RANDOMIZE_QUOTES: true,
 };
 
 export const INSTRUCTIONS = {
-    EMPTY_INPUT: 'Type in the search bar to find similar quotes. Or hover on the points to see the quotes.',
+    EMPTY_INPUT: 'Type in the search bar to look for quotes. Or hover over the points to explore new quotes.',
     NO_RESULTS: 'No results found.'
 };
 
@@ -19,4 +19,5 @@ export const CANVAS_CONFIG = {
     MIN_SCALE: 50,
     MAX_SCALE: 2000,
     ZOOM_FACTOR: 1.1,
+    ZOOM_POINTS: false
 }; 

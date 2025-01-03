@@ -7,12 +7,15 @@ import { sigmoid, interpolateColor, createPointElement } from './utils.js';
 
 class QuoteVisualizer {
     constructor() {
+        this.searchMode = 'quote'; // Default search mode
         this.setupDOMElements();
         this.setupEventListeners();
         this.initialize();
         this.requestTimeout = null;
         this.lastProcessedInput = '';
         this.startInputCheckInterval();
+        this.searchModes = ['quote', 'author', 'book'];
+        this.currentModeIndex = 0;  // quote is default (index 0)
     }
 
     setupDOMElements() {
@@ -34,13 +37,33 @@ class QuoteVisualizer {
         });
 
         this.setupKeyboardShortcuts();
+        this.setupSearchModeButtons();
     }
 
     setupKeyboardShortcuts() {
         document.addEventListener('keydown', (event) => {
+            // Ctrl/Cmd + / to focus input
             if ((event.ctrlKey || event.metaKey) && event.key === '/') {
                 event.preventDefault();
                 document.activeElement === this.input ? this.input.blur() : this.input.focus();
+            }
+            
+            // Tab to cycle through search modes
+            if (event.key === 'Tab') {
+                event.preventDefault();
+                this.currentModeIndex = (this.currentModeIndex + 1) % this.searchModes.length;
+                this.searchMode = this.searchModes[this.currentModeIndex];
+                
+                // Update UI to show active mode
+                const buttons = document.querySelectorAll('.icon-button');
+                buttons.forEach(btn => btn.classList.remove('active'));
+                buttons[this.currentModeIndex].classList.add('active');
+                
+                // Update placeholder and process current input if exists
+                this.updateSearchModeUI();
+                if (this.input.value.trim()) {
+                    this.processQuoteSubmission(this.input.value.trim());
+                }
             }
         });
     }
@@ -114,6 +137,10 @@ class QuoteVisualizer {
             // { className: 'similar-quote-similarity', content: `Distance: ${(quote.distance * 100).toFixed(1)}%` }
         ];
 
+        if (quote.book) {
+            elements.push({ className: 'similar-quote-book', content: quote.book });
+        }
+
         elements.forEach(({ className, content }) => {
             const element = document.createElement('div');
             element.className = className;
@@ -169,16 +196,16 @@ class QuoteVisualizer {
 
     async processQuoteSubmission(inputValue) {
         try {
-            const similarQuotes = await this.getSimilarQuotesWithCache(inputValue);
+            const searchResults = await apiService.searchQuotes(inputValue, this.searchMode);
             
             // Update state with new quotes while maintaining max quote count
             appState.updateQuotesWithSimilar(
-                similarQuotes, 
+                searchResults, 
                 API_CONFIG.MAX_QUOTE_COUNT
             );
             
-            this.updatePointVisualization(similarQuotes);
-            this.displaySimilarQuotes(similarQuotes);
+            this.updatePointVisualization(searchResults);
+            this.displaySimilarQuotes(searchResults);
         } catch (error) {
             console.error('Error submitting quote:', error);
         }
@@ -212,7 +239,12 @@ class QuoteVisualizer {
             const similarQuote = similarQuotesMap.get(quote.id);
             if (!similarQuote) return;
 
-            const brightness = 1 - similarQuote.distance;
+            // For author/book search, use maximum intensity
+            // For quote search, use distance-based intensity
+            const brightness = this.searchMode === 'quote' 
+                ? 1 - (similarQuote.distance || 0)
+                : 1;
+            
             const smoothFactor = sigmoid(brightness);
             
             const color = interpolateColor(
@@ -221,7 +253,7 @@ class QuoteVisualizer {
                 smoothFactor
             );
             
-            const scale = 1 + (maxPointScale - 1) * smoothFactor;
+            const scale = this.searchMode === 'quote' ? 1 + (maxPointScale - 1) * smoothFactor : 1;
             
             const pointElement = document.querySelector(`.plot-point[data-quote-id="${quote.id}"]`);
             if (pointElement) {
@@ -265,6 +297,42 @@ class QuoteVisualizer {
             await this.processQuoteSubmission(inputValue);
             this.lastProcessedInput = inputValue;
         }
+    }
+
+    setupSearchModeButtons() {
+        const quoteButton = document.querySelector('.icon-button:nth-child(1)');
+        const authorButton = document.querySelector('.icon-button:nth-child(2)');
+        const bookButton = document.querySelector('.icon-button:nth-child(3)');
+
+        const buttons = [
+            { element: quoteButton, mode: 'quote' },
+            { element: authorButton, mode: 'author' },
+            { element: bookButton, mode: 'book' }
+        ];
+
+        buttons.forEach(({ element, mode }, index) => {
+            element.addEventListener('click', () => {
+                this.searchMode = mode;
+                this.currentModeIndex = index;
+                buttons.forEach(btn => btn.element.classList.remove('active'));
+                element.classList.add('active');
+                this.updateSearchModeUI();
+                if (this.input.value.trim()) {
+                    this.processQuoteSubmission(this.input.value.trim());
+                }
+            });
+        });
+    }
+
+    updateSearchModeUI() {
+        const placeholders = {
+            quote: 'Search for a quote...',
+            author: 'Search by author name...',
+            book: 'Search by book title...'
+        };
+        
+        this.input.placeholder = placeholders[this.searchMode];
+        // this.input.parentElement.setAttribute('data-search-mode', `Search by ${this.searchMode}`);
     }
 }
 
