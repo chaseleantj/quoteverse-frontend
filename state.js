@@ -49,10 +49,6 @@ class AppState {
         
         if (newQuotes.length === 0) return;
 
-        // Sort existing quotes by similarity (undefined similarity = least similar)
-        // const sortedExisting = [...this.existingQuotes]
-        //   .sort((a, b) => (b.similarity || 0) - (a.similarity || 0));
-
         // Remove least similar quotes to make room for new ones
         const quotesToKeep = this.existingQuotes.slice(0, maxQuotes - newQuotes.length);
         
@@ -67,5 +63,5 @@ class AppState {
 export const appState = new AppState();
 
 // To test the appState in the console
-window.appState = appState;
+// window.appState = appState;
 export default appState; 

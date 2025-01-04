@@ -159,13 +159,6 @@ class Canvas {
         wrapper.appendChild(point);
         wrapper.appendChild(tooltip);
         this.container.appendChild(wrapper);
-
-        wrapper.addEventListener('click', () => this.copyTooltipText(tooltip));
-    }
-
-    copyTooltipText(tooltip) {
-        const tooltipText = tooltip.textContent;
-        navigator.clipboard.writeText(tooltipText);
     }
 
     // Update all point positions based on current scale and offset

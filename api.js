@@ -74,7 +74,6 @@ class ApiService {
 
             const result = await response.json();
             
-            // Handle different response structures based on search mode
             if (searchMode === 'quote') {
                 return result.data.queries[0].similar_quotes;
             } else {

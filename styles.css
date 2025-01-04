@@ -84,6 +84,12 @@ main {
     display: flex;
     flex-direction: column;
     z-index: 10;
+    transform: translateX(0);
+    transition: transform var(--transition-duration) var(--transition-timing);
+}
+
+.input-container.collapsed {
+    transform: translateX(calc(-1 * var(--sidebar-width)));
 }
 
 .input-wrapper {
@@ -94,16 +100,6 @@ main {
     gap: 0.25rem;
     position: relative;
 }
-
-/* .input-wrapper::before {
-    content: attr(data-search-mode);
-    position: absolute;
-    top: -1.25rem;
-    left: 1.5rem;
-    font-size: 0.75rem;
-    color: var(--gray500);
-    text-transform: capitalize;
-} */
 
 .input-buttons {
     display: flex;
@@ -180,6 +176,32 @@ main {
     to {
         transform: rotate(360deg);
     }
+}
+
+/* ==========================================================================
+   Sidebar Toggle
+   ========================================================================== */
+
+.sidebar-toggle {
+    position: absolute;
+    right: -40px;
+    top: 10px;
+    z-index: 1;
+}
+
+.sidebar-toggle .icon-button {
+    width: 30px;
+    height: 30px;
+    color: var(--gray400);
+    background-color: transparent;
+}
+
+.sidebar-toggle .icon-button:hover {
+    background-color: var(--gray300);
+}
+
+.input-container.collapsed .fa-chevron-left {
+    transform: rotate(180deg);
 }
 
 /* ==========================================================================
@@ -400,9 +422,11 @@ input:focus {
 .corner-text {
     color: transparent;
     font-size: var(--size-s);
-    transform: translateX(3rem);
+    text-decoration: none;
+    transform: translateY(3rem);
     transition: all var(--transition-duration) var(--transition-timing);
 }
+
 
 .corner-button {
     width: 2.5rem;
@@ -421,9 +445,55 @@ input:focus {
     color: var(--color-text-primary);
 }
 
-.corner-button:hover + .corner-text {
+.corner-link:hover + .corner-text {
     color: var(--gray400);
     transform: translateX(0);
+}
+
+/* ==========================================================================
+   Loading Spinners
+   ========================================================================== */
+
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.loading-spinner i {
+    color: var(--gray500);
+    animation: spin 1s linear infinite;
+}
+
+.initial-loading {
+    position: fixed;
+    top: 0;
+    left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    height: 100%;
+    background-color: var(--color-bg-primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.initial-loading i {
+    color: var(--gray500);
+    font-size: 3rem;
+    animation: spin 1s linear infinite;
+}
+
+.input-container.collapsed ~ .initial-loading {
+    left: 0;
+    width: 100%;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 

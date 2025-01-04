@@ -1,5 +1,5 @@
 export function sigmoid(x) {
-    return 1 / (1 + Math.exp(-20 * (x - 0.4)));
+    return 1 / (1 + Math.exp(-10 * (x - 0.6)));
 }
 
 export function interpolateColor(color1, color2, factor) {

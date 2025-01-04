@@ -1,5 +1,5 @@
 import canvas from './canvas.js';
-import { API_CONFIG, INSTRUCTIONS } from './config.js';
+import { API_CONFIG, MESSAGES } from './config.js';
 import { apiService } from './api.js';
 import { appState } from './state.js';
 import { sigmoid, interpolateColor, createPointElement } from './utils.js';
@@ -16,6 +16,7 @@ class QuoteVisualizer {
         this.startInputCheckInterval();
         this.searchModes = ['quote', 'author', 'book'];
         this.currentModeIndex = 0;  // quote is default (index 0)
+        this.setupSidebarToggle();
     }
 
     setupDOMElements() {
@@ -25,14 +26,13 @@ class QuoteVisualizer {
         // Show initial instructions
         const instructions = document.createElement('div');
         instructions.className = 'quote-instructions';
-        instructions.textContent = INSTRUCTIONS.EMPTY_INPUT;
+        instructions.textContent = MESSAGES.EMPTY_INPUT;
         this.similarQuotesContainer.appendChild(instructions);
     }
 
     setupEventListeners() {
         appState.subscribe(() => this.refreshCanvas());
         
-        // Only add keydown listener for Enter key
         this.input.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
                 this.handleUserInput();
@@ -67,11 +67,10 @@ class QuoteVisualizer {
                 this.searchMode = this.searchModes[this.currentModeIndex];
                 
                 // Update UI to show active mode
-                const buttons = document.querySelectorAll('.icon-button');
+                const buttons = document.querySelectorAll('.input-buttons .icon-button');
                 buttons.forEach(btn => btn.classList.remove('active'));
                 buttons[this.currentModeIndex].classList.add('active');
                 
-                // Update placeholder and process current input if exists
                 this.updateSearchModeUI();
                 if (this.input.value.trim()) {
                     this.processQuoteSubmission(this.input.value.trim());
@@ -81,11 +80,19 @@ class QuoteVisualizer {
     }
 
     async initialize() {
+        // Create and show loading spinner
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'initial-loading';
+        loadingDiv.innerHTML = '<i class="fa-solid fa-spinner"></i>';
+        document.body.appendChild(loadingDiv);
+
         try {
             const quotes = await apiService.fetchExistingQuotes();
             appState.setQuotes(quotes);
         } catch (error) {
             console.error('Failed to initialize:', error);
+        } finally {
+            loadingDiv.remove();
         }
     }
 
@@ -120,7 +127,7 @@ class QuoteVisualizer {
         if (!this.input.value.trim()) {
             const instructions = document.createElement('div');
             instructions.className = 'quote-instructions';
-            instructions.textContent = INSTRUCTIONS.EMPTY_INPUT;
+            instructions.textContent = MESSAGES.EMPTY_INPUT;
             this.similarQuotesContainer.appendChild(instructions);
             return;
         }
@@ -129,7 +136,7 @@ class QuoteVisualizer {
         if (!similarQuotes?.length) {
             const noResults = document.createElement('div');
             noResults.className = 'quote-instructions';
-            noResults.textContent = INSTRUCTIONS.NO_RESULTS;
+            noResults.textContent = MESSAGES.NO_RESULTS;
             this.similarQuotesContainer.appendChild(noResults);
             return;
         }
@@ -188,7 +195,6 @@ class QuoteVisualizer {
             copyQuote();
         });
         
-        // Add hover event listeners (existing code)
         quoteElement.addEventListener('mouseenter', () => {
             const pointElement = document.querySelector(`.plot-point[data-quote-id="${quote.id}"]`);
             if (pointElement) {
@@ -208,6 +214,7 @@ class QuoteVisualizer {
 
     async processQuoteSubmission(inputValue) {
         try {
+            this.showLoadingSpinner();
             const searchResults = await apiService.searchQuotes(inputValue, this.searchMode);
             
             // Update state with new quotes while maintaining max quote count
@@ -219,7 +226,9 @@ class QuoteVisualizer {
             this.updatePointVisualization(searchResults);
             this.displaySimilarQuotes(searchResults);
         } catch (error) {
-            console.error('Error submitting quote:', error);
+            this.displayErrorMessage();
+        } finally {
+            this.hideLoadingSpinner();
         }
     }
 
@@ -314,9 +323,9 @@ class QuoteVisualizer {
     }
 
     setupSearchModeButtons() {
-        const quoteButton = document.querySelector('.icon-button:nth-child(1)');
-        const authorButton = document.querySelector('.icon-button:nth-child(2)');
-        const bookButton = document.querySelector('.icon-button:nth-child(3)');
+        const quoteButton = document.querySelector('.input-buttons .icon-button:nth-child(1)');
+        const authorButton = document.querySelector('.input-buttons .icon-button:nth-child(2)');
+        const bookButton = document.querySelector('.input-buttons .icon-button:nth-child(3)');
 
         const buttons = [
             { element: quoteButton, mode: 'quote' },
@@ -328,7 +337,9 @@ class QuoteVisualizer {
             element.addEventListener('click', () => {
                 this.searchMode = mode;
                 this.currentModeIndex = index;
-                buttons.forEach(btn => btn.element.classList.remove('active'));
+                // More specific selector for search mode buttons only
+                document.querySelectorAll('.input-buttons .icon-button')
+                    .forEach(btn => btn.classList.remove('active'));
                 element.classList.add('active');
                 this.updateSearchModeUI();
                 if (this.input.value.trim()) {
@@ -346,7 +357,45 @@ class QuoteVisualizer {
         };
         
         this.input.placeholder = placeholders[this.searchMode];
-        // this.input.parentElement.setAttribute('data-search-mode', `Search by ${this.searchMode}`);
+    }
+
+    setupSidebarToggle() {
+        const inputContainer = document.querySelector('.input-container');
+        const toggleButton = document.querySelector('.sidebar-toggle .icon-button');
+        const icon = toggleButton.querySelector('i');
+        
+        toggleButton.addEventListener('click', () => {
+            inputContainer.classList.toggle('collapsed');
+            
+            // Update canvas dimensions when sidebar is toggled
+            setTimeout(() => {
+                canvas.resize();
+                canvas.updateAllPointPositions();
+            }, 300); // Match this with CSS transition duration
+        });
+    }
+
+    showLoadingSpinner() {
+        this.similarQuotesContainer.innerHTML = '';
+        const spinner = document.createElement('div');
+        spinner.className = 'loading-spinner';
+        spinner.innerHTML = '<i class="fa-solid fa-spinner fa-xl"></i>';
+        this.similarQuotesContainer.appendChild(spinner);
+    }
+
+    hideLoadingSpinner() {
+        const spinner = this.similarQuotesContainer.querySelector('.loading-spinner');
+        if (spinner) {
+            spinner.remove();
+        }
+    }
+
+    displayErrorMessage() {
+        this.similarQuotesContainer.innerHTML = '';
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'quote-instructions';
+        errorDiv.textContent = MESSAGES.ERROR;
+        this.similarQuotesContainer.appendChild(errorDiv);
     }
 }
 
