@@ -32,8 +32,20 @@ class QuoteVisualizer {
     setupEventListeners() {
         appState.subscribe(() => this.refreshCanvas());
         
-        this.input.addEventListener('keydown', () => {
-            setTimeout(() => this.handleUserInput(), 10);
+        // Only add keydown listener for Enter key
+        this.input.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                this.handleUserInput();
+            }
+        });
+
+        // Add input event listener to handle clearing
+        this.input.addEventListener('input', () => {
+            if (!this.input.value.trim()) {
+                this.refreshCanvas();
+                this.displaySimilarQuotes([]);
+                this.lastProcessedInput = '';
+            }
         });
 
         this.setupKeyboardShortcuts();
@@ -275,13 +287,15 @@ class QuoteVisualizer {
     }
 
     startInputCheckInterval() {
-        setInterval(() => {
-            const currentInput = this.input.value.trim();
-            if (currentInput && currentInput !== this.lastProcessedInput) {
-                this.lastProcessedInput = currentInput;
-                this.processQuoteSubmission(currentInput);
-            }
-        }, API_CONFIG.REQUEST_CHECK_INTERVAL);
+        if (API_CONFIG.AUTO_SEND) {
+            setInterval(() => {
+                const currentInput = this.input.value.trim();
+                if (currentInput && currentInput !== this.lastProcessedInput) {
+                    this.lastProcessedInput = currentInput;
+                    this.processQuoteSubmission(currentInput);
+                }
+            }, API_CONFIG.REQUEST_CHECK_INTERVAL);
+        }
     }
 
     async handleUserInput() {
@@ -294,7 +308,7 @@ class QuoteVisualizer {
         }
         
         if (this.canSubmitRequest()) {
-            await this.processQuoteSubmission(inputValue);
+            this.processQuoteSubmission(inputValue);
             this.lastProcessedInput = inputValue;
         }
     }
