@@ -64,6 +64,33 @@ class Canvas {
                 this.handlePinchZoom(e);
             }
         });
+        
+        // Touch events for panning
+        this.container.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {  // Single touch for panning
+                this.startDrag({
+                    clientX: e.touches[0].clientX,
+                    clientY: e.touches[0].clientY
+                });
+            }
+        });
+
+        this.container.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 1) {  // Single touch for panning
+                this.drag({
+                    clientX: e.touches[0].clientX,
+                    clientY: e.touches[0].clientY
+                });
+            }
+        });
+
+        this.container.addEventListener('touchend', () => {
+            this.endDrag();
+        });
+
+        this.container.addEventListener('touchcancel', () => {
+            this.endDrag();
+        });
     }
 
     startDrag(e) {
