@@ -1,5 +1,5 @@
 import canvas from './canvas.js';
-import { API_CONFIG, MESSAGES } from './config.js';
+import { API_CONFIG, MESSAGES, SEARCH_CONFIG } from './config.js';
 import { apiService } from './api.js';
 import { appState } from './state.js';
 import { sigmoid, interpolateColor, createPointElement } from './utils.js';
@@ -22,12 +22,16 @@ class QuoteVisualizer {
     setupDOMElements() {
         this.input = document.querySelector('input');
         this.similarQuotesContainer = document.querySelector('.similar-quotes-container');
+        this.searchLabel = document.querySelector('.search-label');
         
         // Show initial instructions
         const instructions = document.createElement('div');
         instructions.className = 'quote-instructions';
         instructions.textContent = MESSAGES.EMPTY_INPUT;
         this.similarQuotesContainer.appendChild(instructions);
+
+        // Set initial search label
+        this.updateSearchModeUI();
     }
 
     setupEventListeners() {
@@ -39,9 +43,17 @@ class QuoteVisualizer {
             }
         });
 
-        // Add input event listener to handle clearing
+        // Add input event listener to handle clearing and label visibility
         this.input.addEventListener('input', () => {
-            if (!this.input.value.trim()) {
+            const hasInput = this.input.value.trim().length > 0;
+            
+            // Toggle clear button
+            clearButton.classList.toggle('visible', hasInput);
+            
+            // Toggle search label
+            this.searchLabel.classList.toggle('visible', hasInput);
+            
+            if (!hasInput) {
                 this.refreshCanvas();
                 this.displaySimilarQuotes([]);
                 this.lastProcessedInput = '';
@@ -50,6 +62,27 @@ class QuoteVisualizer {
 
         this.setupKeyboardShortcuts();
         this.setupSearchModeButtons();
+
+        // Clear input button functionality
+        const clearButton = document.querySelector('.clear-input-button');
+        const input = this.input;
+
+        // Show/hide clear button based on input content
+        input.addEventListener('input', () => {
+            const hasInput = input.value.length > 0;
+            clearButton.classList.toggle('visible', hasInput);
+            this.searchLabel.classList.toggle('visible', hasInput);
+        });
+
+        // Clear input when button is clicked
+        clearButton.addEventListener('click', () => {
+            input.value = '';
+            clearButton.classList.remove('visible');
+            this.searchLabel.classList.remove('visible');
+            this.refreshCanvas();
+            this.displaySimilarQuotes([]);
+            this.lastProcessedInput = '';
+        });
     }
 
     setupKeyboardShortcuts() {
@@ -350,13 +383,8 @@ class QuoteVisualizer {
     }
 
     updateSearchModeUI() {
-        const placeholders = {
-            quote: 'Search for a quote...',
-            author: 'Search by author name...',
-            book: 'Search by book title...'
-        };
-        
-        this.input.placeholder = placeholders[this.searchMode];
+        this.input.placeholder = SEARCH_CONFIG.placeholders[this.searchMode];
+        this.searchLabel.textContent = SEARCH_CONFIG.labels[this.searchMode];
     }
 
     setupSidebarToggle() {

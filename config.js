@@ -16,6 +16,19 @@ export const MESSAGES = {
     ERROR: 'An error occurred while fetching quotes. Please try again later.'
 };
 
+export const SEARCH_CONFIG = {
+    placeholders: {
+        quote: 'Search for a quote...',
+        author: 'Search by author name...',
+        book: 'Search by book title...'
+    },
+    labels: {
+        quote: 'Search by quote',
+        author: 'Search by author',
+        book: 'Search by book'
+    }
+};
+
 export const CANVAS_CONFIG = {
     DEFAULT_SCALE: 200,
     MIN_SCALE: 50,

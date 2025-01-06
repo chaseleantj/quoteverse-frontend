@@ -101,10 +101,29 @@ main {
     position: relative;
 }
 
+.input-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.search-label {
+    color: var(--gray500);
+    font-size: var(--size-s);
+    margin-right: auto;
+    padding-left: 0.25rem;
+    opacity: 0;
+    transition: opacity var(--transition-duration) var(--transition-timing);
+}
+
+.search-label.visible {
+    opacity: 1;
+}
+
 .input-buttons {
     display: flex;
     gap: 0.5rem;
-    justify-content: flex-end;
+    align-items: center;
 }
 
 .icon-button {
@@ -494,6 +513,39 @@ input:focus {
     100% {
         transform: rotate(360deg);
     }
+}
+
+.input-field-container {
+    position: relative;
+    width: 100%;
+}
+
+.clear-input-button {
+    position: absolute;
+    width: 2rem;
+    height: 2rem;
+    right: 0.3rem;
+    top: 50%;
+    font-size: var(--size-m);
+    transform: translateY(-50%);
+    background-color: transparent;
+    border: none;
+    border-radius: 50%;
+    color: var(--gray400);
+    cursor: pointer;
+    padding: 5px;
+}
+
+.clear-input-button:hover {
+    color: var(--color-text-primary);
+    background-color: var(--gray300);
+}
+
+.search-label {
+    color: var(--gray500);
+    font-size: var(--size-xs);
+    margin-right: auto;
+    padding-left: 1rem;
 }
 
 
