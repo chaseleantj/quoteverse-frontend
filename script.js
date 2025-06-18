@@ -154,6 +154,7 @@ class QuoteVisualizer {
     }
 
     displaySimilarQuotes(similarQuotes) {
+
         this.similarQuotesContainer.innerHTML = '';
         
         // If input is empty, show initial instructions
@@ -189,7 +190,7 @@ class QuoteVisualizer {
             // { className: 'similar-quote-similarity', content: `Distance: ${(quote.distance * 100).toFixed(1)}%` }
         ];
 
-        if (quote.book) {
+        if (quote.book && quote.book != '-') {
             elements.push({ className: 'similar-quote-book', content: quote.book });
         }
 

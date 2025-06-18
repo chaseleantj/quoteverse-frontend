@@ -8,7 +8,7 @@ export const API_CONFIG = {
     REQUEST_INTERVAL: 50,
     REQUEST_CHECK_INTERVAL: 1000,
     RANDOMIZE_QUOTES: true,
-    AUTO_SEND: true
+    AUTO_SEND: false
 };
 
 export const MESSAGES = {
