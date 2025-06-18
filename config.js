@@ -4,7 +4,7 @@ export const API_CONFIG = {
     BASE_URL: 'https://quoteverse-backend.onrender.com/quotes',
     MAX_QUOTE_COUNT: 1000,
     MAX_SIMILAR_QUOTE_COUNT: 50,
-    MAX_SIMILAR_QUOTE_DISTANCE: 0.55,
+    MAX_SIMILAR_QUOTE_DISTANCE: 0.60,
     REQUEST_INTERVAL: 50,
     REQUEST_CHECK_INTERVAL: 1000,
     RANDOMIZE_QUOTES: true,
